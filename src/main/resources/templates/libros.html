@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Lista de Libros</title>
+</head>
+<body>
+
+    <h1>Lista de Libros</h1>
+
+    <div th:if="${libros != null}">
+        <ul>
+            <li th:each="libro : ${libros}">
+                <p><strong>Título:</strong> <span th:text="${libro.titulo}"></span></p>
+                <p><strong>Autor:</strong> <span th:text="${libro.autor}"></span></p>
+                <p><strong>Género:</strong> <span th:text="${libro.genero}"></span></p>
+                <p><strong>Fecha de Publicación:</strong> <span th:text="${libro.fechaPublicacion}"></span></p>
+            </li>
+        </ul>
+    </div>
+
+    <div th:if="${libros == null or #lists.isEmpty(libros)}">
+        <p>No se encontraron libros.</p>
+    </div>
+
+</body>
+</html>
