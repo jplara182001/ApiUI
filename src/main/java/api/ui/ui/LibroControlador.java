@@ -1,6 +1,7 @@
 package api.ui.ui;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -79,21 +82,35 @@ public class LibroControlador {
     }
 
     @GetMapping("/libros/editar/{id}")
-    public String mostrarFormularioEditar(@PathVariable String id, Model model) {
-        System.out.println("ID del libro: " + id); // Imprime el ID para verificar que se recibe correctamente.
+public String mostrarFormularioEditar(@PathVariable String id, Model model) {
+    String url = "https://crudlibrosaiven-production.up.railway.app/api/v0/libros/" + id;
 
-        String url = "https://crudlibrosaiven-production.up.railway.app/api/v0/libros/" + id;
-        Libro libro = restTemplate.getForObject(url, Libro.class);
-
-        if (libro == null) {
+    try {
+        // Obtener el JSON como un Map
+        Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+        if (response == null || !response.containsKey("Libro")) {
             model.addAttribute("error", "El libro no fue encontrado.");
-            return "error"; // Retorna una vista de error si el libro no existe
+            return "error";
         }
 
+        // Extraer el mapa que representa el libro
+        Map<String, Object> libroMap = (Map<String, Object>) response.get("Libro");
+
+        // Convertir ese mapa a objeto Libro
+        ObjectMapper mapper = new ObjectMapper();
+        Libro libro = mapper.convertValue(libroMap, Libro.class);
+
         model.addAttribute("libro", libro);
-        model.addAttribute("libroId", id); // Añadimos el ID como un atributo separado
-        return "editar";
+        model.addAttribute("libroId", id);
+
+    } catch (Exception e) {
+        model.addAttribute("error", "Error al obtener el libro: " + e.getMessage());
+        return "error";
     }
+
+    return "editar";
+}
+
 
     // Método para procesar la edición utilizando PostMapping
     @PostMapping("/libros/actualizar/{id}")
