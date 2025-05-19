@@ -2,25 +2,115 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Lista de Libros</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .libro-info {
+            margin-bottom: 8px;
+        }
+        .acciones {
+            margin-top: 8px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 5px 10px;
+            margin-right: 5px;
+            text-decoration: none;
+            color: white;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-editar {
+            background-color: #2196F3;
+        }
+        .btn-eliminar {
+            background-color: #f44336;
+            border: none;
+        }
+        .paginacion {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .paginacion a {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 0 5px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 3px;
+        }
+        .paginacion span {
+            display: inline-block;
+            margin: 0 10px;
+        }
+    </style>
+    <script>
+        function eliminarLibro(id) {
+            if (confirm("¿Estás seguro de que deseas eliminar este libro?")) {
+                fetch('/libros/' + id, {
+                    method: 'DELETE'
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('Error al eliminar el libro.');
+                    }
+                });
+            }
+        }
+    </script>
 </head>
 <body>
-
     <h1>Lista de Libros</h1>
-
-    <div th:if="${libros != null}">
+    
+    <div th:if="${libros != null && !libros.empty}">
         <ul>
             <li th:each="libro : ${libros}">
-                <p><strong>Título:</strong> <span th:text="${libro.titulo}"></span></p>
-                <p><strong>Autor:</strong> <span th:text="${libro.autor}"></span></p>
-                <p><strong>Género:</strong> <span th:text="${libro.genero}"></span></p>
-                <p><strong>Fecha de Publicación:</strong> <span th:text="${libro.fechaPublicacion}"></span></p>
+                <div class="libro-info">
+                    <strong th:text="${libro.titulo}">Título del libro</strong><br>
+                    <span>Autor: </span><span th:text="${libro.autor}">Autor</span><br>
+                    <span>Género: </span><span th:text="${libro.genero}">Género</span><br>
+                    <span>Fecha: </span><span th:text="${libro.fechaPublicacion}">Fecha</span>
+                </div>
+                <div class="acciones">
+                    <a class="btn btn-editar" th:href="@{'/libros/editar/' + ${libro.id}}">Editar</a>
+                    <button class="btn btn-eliminar" type="button" th:attr="onclick=|eliminarLibro('${libro.id}')|">Eliminar</button>
+                </div>
             </li>
         </ul>
+        
+        <!-- Paginación -->
+        <div class="paginacion">
+            <span th:if="${currentPage > 0}">
+                <a th:href="@{/libros?page={page}(page=${currentPage - 1})}">Anterior</a>
+            </span>
+            <span> Página <span th:text="${currentPage + 1}"></span> de <span th:text="${totalPages}"></span> </span>
+            <span th:if="${currentPage < totalPages - 1}">
+                <a th:href="@{/libros?page={page}(page=${currentPage + 1})}">Siguiente</a>
+            </span>
+        </div>
     </div>
-
-    <div th:if="${libros == null or #lists.isEmpty(libros)}">
+    
+    <div th:if="${libros == null || libros.empty}">
         <p>No se encontraron libros.</p>
     </div>
-
 </body>
 </html>

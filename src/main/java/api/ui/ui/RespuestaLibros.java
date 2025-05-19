@@ -16,6 +16,10 @@ public class RespuestaLibros {
     @JsonProperty("TotalPages")
     private int totalPages;
 
+    public int getTotalPages() {
+        return totalPages;
+    }
+
     public List<Libro> getLibros() {
         return libros;
     }
