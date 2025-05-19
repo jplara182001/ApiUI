@@ -80,6 +80,8 @@
 </head>
 <body>
     <h1>Lista de Libros</h1>
+
+    <a href="/libros/crear" class="btn btn-editar" style="background-color: #4CAF50;">Añadir Libro</a>
     
     <div th:if="${libros != null && !libros.empty}">
         <ul>
